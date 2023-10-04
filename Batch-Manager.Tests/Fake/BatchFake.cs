@@ -1,83 +1,73 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Data.Common;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Batch_Manager.Models;
-//using Attribute = Batch_Manager.Models.Attribute;
-//using File = Batch_Manager.Models.File;
+﻿using Batch_Manager.DataTableObjects;
+using Batch_Manager.Models;
 
-//namespace Batch_Manager.Tests.Fake
-//{
-//    public static class BatchFake
-//    {
-//        public static Batch GetFakeBatch()
-//        {
-//            Batch batch = new Batch();
-//            batch.BatchId = "8065e72d-97ca-4d94-b02d-678d6c274fa5";
+namespace Batch_Manager.Tests.Fake
+{
+    public static class BatchFake
+    {
+        public static Batch GetFakeBatch()
+        {
+            Batch batch = new Batch();
+            batch.BatchId = "8065e72d-97ca-4d94-b02d-678d6c274fa5";
+            batch.BusinessUnit = "BU2";
+            batch.Status = "InProgress";
+            batch.BatchPublishedDate = DateTime.Now.ToString();
+            batch.ExpiryDate = DateTime.Now.ToString();
+            Acl acl = new Acl();
+            List<User> users = new List<User>();
+            users.Add(new User() { Name = "User1" });
+            users.Add(new User() { Name = "User2" });
+            acl.ReadUsers = users;
+            List<Group> groups = new List<Group>();
+            groups.Add(new Group() { Name = "Group1" });
+            groups.Add(new Group() { Name = "Group2" });
+            acl.ReadGroups = groups;
+            batch.Acl = acl;
+            List<BatchAttribute> batchAttributes = new List<BatchAttribute>();
+            BatchAttribute batchAttribute = new BatchAttribute();
+            batchAttribute.Key = "Key1";
+            batchAttribute.Value = "Value1";
+            batchAttributes.Add(batchAttribute);
+            batch.Attributes = batchAttributes;
 
-//            batch.BusinessUnit = "BU2";
-//            batch.Status = "InProgress";
-//            batch.BatchPublishedDate = DateTime.Now.ToString();
-//            batch.ExpiryDate = DateTime.Now.ToString();
-//            Acl objAcl = new Acl();
-//            List<String> strList = new List<String>();
-//            strList.Add("User1");
-//            strList.Add("User2");
-//            objAcl.ReadUsers = strList;
-//            List<String> strListGrp = new List<String>();
-//            strListGrp.Add("Grp1");
-//            strListGrp.Add("Grp2");
-//            batch.Acl = objAcl; 
-//            List<Attribute> attrList = new List<Attribute>();
-//            Attribute objAttr = new Attribute();
-//            objAttr.Key = "Key1";
-//            objAttr.Value = "Value1";
-//            attrList.Add(objAttr);
-//            batch.Attributes = attrList;
+            BatchFileDto file = new BatchFileDto();
+            List<BatchFileDto> files = new List<BatchFileDto>();
+            file.FileName = "File1";
+            file.FileSize = "200MB";
+            ICollection<FileAttribute> fileAttributes = new List<FileAttribute>();
+            FileAttribute fileAttribute = new FileAttribute();
+            fileAttribute.Key = "Key1";
+            fileAttribute.Value = "Value1";
+            fileAttributes.Add(fileAttribute);
+            file.Attributes = fileAttributes;
+            files.Add(file);
+            batch.Files = files;
+            return batch;
+        }
+        public static ErrorDetails GetBatchRecordsErrorDetails()
+        {
+            ErrorDetails errorDetails = new ErrorDetails();
+            List<Error> errors = new List<Error>();
+            Error error = new Error();
+            errorDetails.CorrelationId = "8065e72d-97ca-4d94-b02d-678d6c";
+            error.Source = "Batch Controller";
+            error.Description = "No Record Found.";
+            errors.Add(error);
+            errorDetails.Errors = errors;
+            return errorDetails;
+        }
 
-//            File oFile = new File();
-//            List<File> files = new List<File>();
-//            oFile.FileName = "File1";
-//            oFile.FileSize = "200MB";
-//            oFile.Hash = "SHA";
-//            ICollection<FileAttribute> attribute = new List<FileAttribute>();
-//            FileAttribute fileAttr = new FileAttribute();
-//            fileAttr.Key = "Key1";
-//            fileAttr.Value = "Value1";
-//            attribute.Add(fileAttr);
-//            oFile.Attributes = attribute;
-//            files.Add(oFile);
-//            batch.Files = files;
-//            return batch;
-//        }
-//        public static ErrorDetails GetErrorInfo()
-//        {
-//            ErrorDetails errDesc = new ErrorDetails();
-//            List<Error> errList = new List<Error>();
-//            Error err = new Error();
-//            errDesc.CorrelationId = "8065e72d-97ca-4d94-b02d-678d6c";
-//            err.Source = "Batch Controller";
-//            err.Description = "No Record Found.";
-//            errList.Add(err);
-//            errDesc.Errors = errList;
-//            return errDesc; 
-//        }
-
-//        public static ErrorDetails GetBatchObjectErrorInfo()
-//        {
-//            ErrorDetails errDesc = new ErrorDetails();
-//            List<Error> errList = new List<Error>();
-//            Error err = new Error();
-//            errDesc.CorrelationId = "6bb112bd-663d-449f-9716-cb76f2d142b9";
-//            err.Source = "Batch Controller";
-//            err.Description = "Batch object is null.";
-//            errList.Add(err);
-//            errDesc.Errors = errList;
-//            return errDesc;
-//        }
-//    }
-
-
-//}
+        public static ErrorDetails GetBatchObjectErrorDetails()
+        {
+            ErrorDetails errorDetails = new ErrorDetails();
+            List<Error> errors = new List<Error>();
+            Error error = new Error();
+            errorDetails.CorrelationId = "6bb112bd-663d-449f-9716-cb76f2d142b9";
+            error.Source = "Batch Controller";
+            error.Description = "Batch object is null.";
+            errors.Add(error);
+            errorDetails.Errors = errors;
+            return errorDetails;
+        }
+    }
+}

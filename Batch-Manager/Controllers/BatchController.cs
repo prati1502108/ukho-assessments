@@ -106,5 +106,34 @@ namespace Batch_Manager.Controllers
                 return BadRequest(_errorDetails);
             }
         }
+
+        /// <summary>
+        /// Create a file in batch.
+        /// </summary>
+        /// <param name="batchId"></param>
+        /// <param name="fileName"></param>
+        /// <param name="fileType"></param>
+        /// <param name="contentSize"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("{batchId}/{fileName}")]
+        public IActionResult AddFile(string batchId, string fileName, string fileType, string contentSize)
+        {
+            try
+            {
+                string res = _batch.AddFile(batchId, fileName, fileType, contentSize);
+                return Created("Batch/{batchId}/{fileName}", res);
+            }
+            catch (Exception ex)
+            {
+                _errorDetails.CorrelationId = this._correlationIdGenerator.Get();
+                _error.Source = "Batch Controller";
+                _error.Description = ex.Message;
+                _errors.Add(_error);
+                _errorDetails.Errors = _errors;
+                return BadRequest(_errorDetails);
+            }
+        }
+
     }
 }

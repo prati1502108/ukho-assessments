@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using Batch_Manager.DataTableObjects;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,7 +16,7 @@ namespace Batch_Manager.Models
         public string BusinessUnit { get; set; }
         public string ExpiryDate { get; set; }
         public string BatchPublishedDate { get; set; }
-        public ICollection<BatchFile> Files { get; set; }
+        public ICollection<BatchFileDto> Files { get; set; }
         public Acl Acl { get; set; }
         public ICollection<BatchAttribute> Attributes { get; set; }
     }

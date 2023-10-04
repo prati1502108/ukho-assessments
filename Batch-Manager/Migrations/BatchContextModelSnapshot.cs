@@ -107,15 +107,19 @@ namespace Batch_Manager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileId"));
 
+                    b.Property<string>("BatchGuid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileSize")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Hash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -228,7 +232,7 @@ namespace Batch_Manager.Migrations
             modelBuilder.Entity("Batch_Manager.Models.BatchFile", b =>
                 {
                     b.HasOne("Batch_Manager.Models.Batch", "Batch")
-                        .WithMany("Files")
+                        .WithMany()
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -282,8 +286,6 @@ namespace Batch_Manager.Migrations
                         .IsRequired();
 
                     b.Navigation("Attributes");
-
-                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("Batch_Manager.Models.BatchFile", b =>

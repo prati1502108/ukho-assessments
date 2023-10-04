@@ -1,0 +1,1 @@
+Testing sample document file in .net core application assessment 2.

@@ -23,9 +23,10 @@ builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer(builder.Configur
 //var secretClient = new SecretClient(new Uri(kvUrl.ToString()), new DefaultAzureCredential());
 //var sqlConnectionString = secretClient.GetSecret("SqlConnectionString");
 //builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer((sqlConnectionString.Value).Value));
-
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IBatch, BatchService>();
 builder.Services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+builder.Services.AddScoped<IBlobStorageClient, BlobStorageClient>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

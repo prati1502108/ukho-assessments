@@ -1,4 +1,9 @@
-﻿using Batch_Manager.DatabaseContext;
+﻿using AutoMapper;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
+using Batch_Manager.DatabaseContext;
+using Batch_Manager.DataTableObjects;
 using Batch_Manager.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +13,14 @@ namespace Batch_Manager.Services
     {
         private readonly BatchContext _batchContext;
         private readonly IConfiguration _configuration;
-        public BatchService(BatchContext batchContext, IConfiguration configuration)
+        private readonly IBlobStorageClient _blobStorageClient;
+        private readonly IMapper _mapper;
+        public BatchService(BatchContext batchContext, IConfiguration configuration, IMapper mapper, IBlobStorageClient blobStorageClient)
         {
             _batchContext = batchContext;
             _configuration = configuration;
+            _mapper = mapper;
+            _blobStorageClient = blobStorageClient;
         }
         public BatchResponse CreateBatch(Batch batch)
         {
@@ -21,9 +30,18 @@ namespace Batch_Manager.Services
 
             string batchId = Guid.NewGuid().ToString();
             batch.BatchId = batchId;
+
+            foreach (var file in batch.Files)
+            {
+                var batchFile = _mapper.Map<BatchFile>(file);
+                batchFile.BatchGuid = batchId;
+                batchFile.FileContent = new byte[] { };
+                batchFile.Batch = batch;
+                _batchContext.File.Add(batchFile);
+            }
             _batchContext.Batch.Add(batch);
             _batchContext.SaveChanges();
-
+            CreateBatchContainerOnAzureStorage(batchId);
             batchResponse.BatchId = batchId;
             return batchResponse;
         }
@@ -87,9 +105,14 @@ namespace Batch_Manager.Services
                                   files
                               });
             var filesResult = filesQuery.ToList();
-            batch.Files = filesResult.Select(x => x.files).ToList();
+            var batchFiles = filesResult.Select(x => x.files).ToList<BatchFile>();
+            batch.Files = new List<BatchFileDto>();
+            foreach (var file in batchFiles)
+            {
+                batch.Files.Add(_mapper.Map<BatchFileDto>(file));
+            }
 
-            foreach (var item in batch.Files)
+            foreach (var item in batchFiles)
             {
                 var fileAttributesQuery = (from attributes in _batchContext.FileAttribute
                                            where attributes.Id == item.Id
@@ -101,6 +124,51 @@ namespace Batch_Manager.Services
                 item.Attributes = result.Select(x => x.attributes).ToList();
             }
             return batch;
+        }
+
+        public string AddFile(string batchGuid, string fileName, string fileType, string fileSize)
+        {
+            try
+            {
+                BatchFile file = new BatchFile();
+                file.FileName = fileName;
+                file.MimeType = fileType;
+                file.FileSize = fileSize;
+                file.BatchGuid = batchGuid;
+                //int batchId = _batchContext.Batch.Where(b => b.BatchId == batchGuid).Select(b => b.Id).FirstOrDefault();
+                //file.Id = Convert.ToInt32(batchId);
+
+                var rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                if (rootDirectory.Contains("bin"))
+                    rootDirectory = rootDirectory.Substring(0, rootDirectory.IndexOf("bin"));
+
+                var filePath = Path.Combine(rootDirectory, "UploadFiles\\SampleDoc.txt");
+                file.FileContent = System.IO.File.ReadAllBytes(filePath);
+                file.Attributes = new List<FileAttribute>();
+                file.Batch = _batchContext.Batch.Where(x => x.BatchId == batchGuid).Select(x => x).FirstOrDefault();
+                _batchContext.File.Add(file);
+                _batchContext.SaveChanges();
+                UploadFileOnAzureStorage(filePath, batchGuid.ToString());
+                return "Created";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        private void CreateBatchContainerOnAzureStorage(string batchId)
+        {
+            BlobContainerClient blobContainer = _blobStorageClient.GetBlobContainerClient(_configuration, "container" + batchId);
+            blobContainer.CreateIfNotExists();
+        }
+        private void UploadFileOnAzureStorage(string filePath, string batchId)
+        {
+            BlobContainerClient blobContainer = _blobStorageClient.GetBlobContainerClient(_configuration, "container" + batchId);
+            
+            string blobName = Path.GetFileName(filePath).Split(".")[0];
+            BlobClient blobClient = blobContainer.GetBlobClient(blobName);
+            blobClient.Upload(filePath, true);
         }
     }
 }
