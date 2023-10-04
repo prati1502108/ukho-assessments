@@ -16,13 +16,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 //Read DbConnectionString from appsettings configuration file
-builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+//builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
-////Read DbConnectionString from Azure Key Vault
-//var kvUrl = builder.Configuration.GetValue<string>("AzureKeyVaultUrl");
-//var secretClient = new SecretClient(new Uri(kvUrl.ToString()), new DefaultAzureCredential());
-//var sqlConnectionString = secretClient.GetSecret("SqlConnectionString");
-//builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer((sqlConnectionString.Value).Value));
+//Read DbConnectionString from Azure Key Vault
+var kvUrl = builder.Configuration.GetValue<string>("AzureKeyVaultUrl");
+var secretClient = new SecretClient(new Uri(kvUrl.ToString()), new DefaultAzureCredential());
+var sqlConnectionString = secretClient.GetSecret("SqlConnectionString");
+builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer((sqlConnectionString.Value).Value));
+
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IBatch, BatchService>();
 builder.Services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
