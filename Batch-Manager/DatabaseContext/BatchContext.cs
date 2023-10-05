@@ -24,10 +24,6 @@ namespace Batch_Manager.DatabaseContext
                 .HasOne(g => g.Batch)
                 .WithMany(c => c.Attributes)
                 .HasForeignKey(d => d.Id);
-            //modelBuilder.Entity<BatchFile>()
-            //    .HasOne(g => g.Batch)
-            //    .WithMany(c => c.Files)
-            //    .HasForeignKey(d => d.Id);
             modelBuilder.Entity<BatchFile>()
                 .HasMany(g => g.Attributes)
                 .WithOne(c => c.File)

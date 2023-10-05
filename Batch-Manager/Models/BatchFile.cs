@@ -15,11 +15,11 @@ namespace Batch_Manager.Models
         public string FileName { get; set; }
         public string FileSize { get; set; }
         public string MimeType { get; set; }
-        
+
         [ForeignKey(nameof(Batch))]
         [SwaggerSchema(ReadOnly = true)]
-        public int Id { get; set; } 
-        
+        public int Id { get; set; }
+
         public virtual Batch? Batch { get; set; }
         public ICollection<FileAttribute> Attributes { get; set; }
 

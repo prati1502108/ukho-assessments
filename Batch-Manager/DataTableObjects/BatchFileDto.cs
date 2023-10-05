@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Batch_Manager.Models;
+﻿using Batch_Manager.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Batch_Manager.DataTableObjects
 {

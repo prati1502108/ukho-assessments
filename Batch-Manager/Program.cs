@@ -1,15 +1,13 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Batch_Manager.DatabaseContext;
-using Batch_Manager.Models;
 using Batch_Manager.Services;
 using Batch_Manager.Validators;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
-using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 //Read DbConnectionString from appsettings configuration file
 //builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
-//Read DbConnectionString from Azure Key Vault
+//Configure KeyVault and read sql server connectionString from keyvault secret
 var kvUrl = builder.Configuration.GetValue<string>("AzureKeyVaultUrl");
+builder.Configuration.AddAzureKeyVault(
+        new Uri(kvUrl.ToString()),
+        new DefaultAzureCredential());
 var secretClient = new SecretClient(new Uri(kvUrl.ToString()), new DefaultAzureCredential());
 var sqlConnectionString = secretClient.GetSecret("SqlConnectionString");
 builder.Services.AddDbContext<BatchContext>(x => x.UseSqlServer((sqlConnectionString.Value).Value));
@@ -48,7 +49,7 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IBatchValidator, BatchValidator>();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -56,9 +57,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

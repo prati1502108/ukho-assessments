@@ -1,8 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
-using Batch_Manager.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace Batch_Manager.Services
 {

@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using Batch_Manager.DatabaseContext;
 using Batch_Manager.DataTableObjects;

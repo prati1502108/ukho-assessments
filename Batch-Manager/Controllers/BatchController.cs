@@ -2,7 +2,6 @@
 using Batch_Manager.Services;
 using Batch_Manager.Validators;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Batch_Manager.Controllers
 {
@@ -134,6 +133,5 @@ namespace Batch_Manager.Controllers
                 return BadRequest(_errorDetails);
             }
         }
-
     }
 }
