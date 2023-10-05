@@ -21,6 +21,7 @@ namespace Batch_Manager.Tests.Controllers.Tests
             _batch = Substitute.For<IBatch>();
             _batchValidator = Substitute.For<IBatchValidator>();
             _correlationIdGenerator = Substitute.For<CorrelationIdGenerator>();
+            _batchController = new BatchController(_batch, _correlationIdGenerator, _batchValidator);
         }
 
         [TearDownAttribute]
@@ -36,9 +37,7 @@ namespace Batch_Manager.Tests.Controllers.Tests
         public void When_ValidBatchId_GetBatchByBatchId_ReturnsBatch()
         {
             var batchMock = BatchFake.GetFakeBatch();
-            _batchController = new BatchController(_batch, _correlationIdGenerator, _batchValidator);
             _batch.GetBatches("8065e72d-97ca-4d94-b02d-678d6c274fa5").Returns(batchMock);
-
             var result = _batchController.GetBatchByBatchId("8065e72d-97ca-4d94-b02d-678d6c274fa5");
             Assert.IsNotNull(result);
         }
@@ -49,7 +48,6 @@ namespace Batch_Manager.Tests.Controllers.Tests
             var errorDetails = BatchFake.GetBatchRecordsErrorDetails();
 
             Batch fakeBatch = new Batch();
-            _batchController = new BatchController(_batch, _correlationIdGenerator, _batchValidator);
             _batch.GetBatches("123").Returns(fakeBatch);
 
             var response = _batchController.GetBatchByBatchId("123");

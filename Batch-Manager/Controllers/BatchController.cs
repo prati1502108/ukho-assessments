@@ -121,8 +121,8 @@ namespace Batch_Manager.Controllers
         {
             try
             {
-                string res = _batch.AddFile(batchId, fileName, fileType, contentSize);
-                return Created("Batch/{batchId}/{fileName}", res);
+                string response = _batch.AddFile(batchId, fileName, fileType, contentSize);
+                return Ok(response);
             }
             catch (Exception ex)
             {
